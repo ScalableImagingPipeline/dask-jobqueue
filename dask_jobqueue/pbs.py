@@ -76,11 +76,11 @@ class PBSJob(Job):
         header_lines = []
         # PBS header build
         if self.job_name is not None:
-            header_lines.append("#PBS -N %s" % self.job_name)
+            header_lines.append("#$ -N %s" % self.job_name)
         if queue is not None:
-            header_lines.append("#PBS -q %s" % queue)
+            header_lines.append("#$ -q %s" % queue)
         if project is not None:
-            header_lines.append("#PBS -A %s" % project)
+            header_lines.append("#$ -A %s" % project)
         if resource_spec is None:
             # Compute default resources specifications
             resource_spec = "select=1:ncpus=%d" % self.worker_cores
@@ -91,13 +91,11 @@ class PBSJob(Job):
                 % resource_spec
             )
         if resource_spec is not None:
-            header_lines.append("#PBS -l %s" % resource_spec)
-        if walltime is not None:
-            header_lines.append("#PBS -l walltime=%s" % walltime)
+            header_lines.append("#$ -l %s" % resource_spec)
         if self.log_directory is not None:
-            header_lines.append("#PBS -e %s/" % self.log_directory)
-            header_lines.append("#PBS -o %s/" % self.log_directory)
-        header_lines.extend(["#PBS %s" % arg for arg in job_extra])
+            header_lines.append("#$ -e %s/" % self.log_directory)
+            header_lines.append("#$ -o %s/" % self.log_directory)
+        header_lines.extend(["#$ %s" % arg for arg in job_extra])
 
         # Declare class attribute that shall be overridden
         self.job_header = "\n".join(header_lines)
@@ -111,17 +109,17 @@ class PBSCluster(JobQueueCluster):
     Parameters
     ----------
     queue : str
-        Destination queue for each worker job. Passed to `#PBS -q` option.
+        Destination queue for each worker job. Passed to `#$ -q` option.
     project : str
-        Accounting string associated with each worker job. Passed to `#PBS -A` option.
+        Accounting string associated with each worker job. Passed to `#$ -A` option.
     {job}
     {cluster}
     resource_spec : str
-        Request resources and specify job placement. Passed to `#PBS -l` option.
+        Request resources and specify job placement. Passed to `#$ -l` option.
     walltime : str
         Walltime for each worker job.
     job_extra : list
-        List of other PBS options. Each option will be prepended with the #PBS prefix.
+        List of other PBS options. Each option will be prepended with the #$ prefix.
 
     Examples
     --------
